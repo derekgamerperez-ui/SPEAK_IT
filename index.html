@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speak It! - Juego de Pronunciación</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .app-container {
+            background-color: #2f3148;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #4cc9f0;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            color: #a0a3bd;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        .instructions {
+            background-color: #25273a;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #d1d3e2;
+        }
+        .difficulty-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn {
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .btn-easy { background-color: #2ec4b6; }
+        .btn-medium { background-color: #ff9f1c; }
+        .btn-hard { background-color: #e71d36; }
+        .btn-primary {
+            background-color: #4361ee;
+            justify-content: center;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            background-color: #25273a;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .word-card {
+            background-color: #3a3d5c;
+            border: 2px dashed #4cc9f0;
+            padding: 40px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+        .word-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #a0a3bd;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .target-word {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            overflow-wrap: anywhere;
+        }
+        .mic-container { margin: 20px 0; }
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #e71d36;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .status-text {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #a0a3bd;
+            line-height: 1.5;
+        }
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+        }
+        .feedback-correct {
+            background-color: rgba(46, 196, 182, 0.2);
+            border: 1px solid #2ec4b6;
+            color: #2ec4b6;
+        }
+        .feedback-wrong {
+            background-color: rgba(231, 29, 54, 0.2);
+            border: 1px solid #e71d36;
+            color: #ff6b6b;
+        }
+        .feedback-box p + p {
+            margin-top: 8px;
+            color: #fff;
+            line-height: 1.5;
+        }
+        .final-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ff9f1c;
+            margin: 20px 0;
+        }
+        .rank-badge {
+            display: inline-block;
+            background-color: #25273a;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .small-note {
+            color: #a0a3bd;
+            font-size: .85rem;
+            line-height: 1.5;
+            margin-top: 16px;
+        }
+        form { width: 100%; }
+        @media (max-width: 480px) {
+            .app-container { padding: 24px 18px; }
+            h1 { font-size: 2rem; }
+            .target-word { font-size: 2.2rem; }
+            .game-header { font-size: .85rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    {% if pantalla == "menu" %}
+    <section>
+        <h1>🎙️ SPEAK IT!</h1>
+        <p class="subtitle">Pon a prueba tu pronunciación en inglés 🇺🇸</p>
+
+        <div class="instructions">
+            <strong>📋 Instrucciones:</strong><br>
+            1. Elige un nivel de dificultad.<br>
+            2. Verás una palabra en español.<br>
+            3. Presiona el micrófono 🔴 y pronuncia su traducción en inglés.<br>
+            4. Obtendrás 10 puntos por cada respuesta correcta.
+        </div>
+
+        <div class="difficulty-grid">
+            <form method="POST" action="/">
+                <input type="hidden" name="dificultad" value="Facil">
+                <button class="btn btn-easy" type="submit">
+                    <span>🟢 FÁCIL</span><span>5 Rondas</span>
+                </button>
+            </form>
+            <form method="POST" action="/">
+                <input type="hidden" name="dificultad" value="Medio">
+                <button class="btn btn-medium" type="submit">
+                    <span>🟡 MEDIO</span><span>7 Rondas</span>
+                </button>
+            </form>
+            <form method="POST" action="/">
+                <input type="hidden" name="dificultad" value="Dificil">
+                <button class="btn btn-hard" type="submit">
+                    <span>🔴 DIFÍCIL</span><span>10 Rondas</span>
+                </button>
+            </form>
+        </div>
+        <p class="small-note">El reconocimiento de voz requiere conexión a internet y un micrófono disponible.</p>
+    </section>
+
+    {% elif pantalla == "juego" %}
+    <section>
+        <div class="game-header">
+            <span>🔄 Ronda: {{ ronda }}/{{ total }}</span>
+            <span>⭐ Puntos: {{ puntos }}</span>
+        </div>
+
+        <div class="word-card">
+            <div class="word-label">Traduce y pronuncia:</div>
+            <div class="target-word">{{ palabra }}</div>
+        </div>
+
+        {% if not respondio %}
+        <div class="mic-container">
+            <form method="POST" action="{{ url_for('grabar') }}">
+                <button class="mic-btn" type="submit" aria-label="Grabar respuesta">🎙️</button>
+            </form>
+            <div class="status-text">Opción 1: presiona el micrófono y pronuncia la traducción en inglés durante 5 segundos.</div>
+        </div>
+
+        <div class="instructions" style="margin-top: 22px;">
+            <strong>⌨️ ¿No puedes hablar?</strong><br>
+            También puedes escribir la traducción en inglés:
+            <form method="POST" action="{{ url_for('responder') }}" style="margin-top: 12px;">
+                <input
+                    type="text"
+                    name="respuesta"
+                    placeholder="Escribe aquí en inglés..."
+                    autocomplete="off"
+                    required
+                    style="width: 100%; padding: 13px; border: 1px solid #555a7a; border-radius: 10px; background: #1e2033; color: white; font-size: 1rem; margin-bottom: 10px;"
+                >
+                <button class="btn btn-primary" type="submit" style="margin-top: 0;">
+                    Comprobar respuesta ✍️
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="feedback-box {{ 'feedback-correct' if feedback.correcta else 'feedback-wrong' }}">
+            <p><strong>{{ feedback.titulo }}</strong></p>
+            <p>{{ feedback.detalle }}</p>
+            <form method="POST" action="{{ url_for('siguiente') }}">
+                <button class="btn btn-primary" type="submit">
+                    {% if ronda < total %}Siguiente Palabra ➡️{% else %}Ver resultados 🏆{% endif %}
+                </button>
+            </form>
+        </div>
+        {% endif %}
+        <p class="small-note">Nivel: {{ dificultad }} · Máximo: {{ total * 10 }} puntos</p>
+    </section>
+
+    {% elif pantalla == "final" %}
+    <section>
+        <h1>🏆 ¡JUEGO TERMINADO!</h1>
+        <p class="subtitle">Este es el resumen de tu partida</p>
+        <div class="final-score">{{ puntos }} / {{ total_puntos }}</div>
+        <div class="rank-badge">Rango: {{ rango }}</div>
+        <p class="small-note">Dificultad: {{ dificultad }}</p>
+        <a class="btn btn-primary" href="{{ url_for('inicio') }}">🔄 Jugar de Nuevo</a>
+    </section>
+    {% endif %}
+
+</div>
+</body>
+</html>
